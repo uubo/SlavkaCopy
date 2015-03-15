@@ -13,6 +13,7 @@
 		F56171FB1AB5B1D300DB65E7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F56171FA1AB5B1D300DB65E7 /* Images.xcassets */; };
 		F56171FE1AB5B1D300DB65E7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F56171FC1AB5B1D300DB65E7 /* Main.storyboard */; };
 		F561720A1AB5B1D300DB65E7 /* VkMessageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F56172091AB5B1D300DB65E7 /* VkMessageTests.m */; };
+		F561722E1AB5EAE300DB65E7 /* SerialPortSample.c in Sources */ = {isa = PBXBuildFile; fileRef = F561722C1AB5EAE300DB65E7 /* SerialPortSample.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +39,8 @@
 		F56172031AB5B1D300DB65E7 /* VkMessageTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VkMessageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F56172081AB5B1D300DB65E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F56172091AB5B1D300DB65E7 /* VkMessageTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VkMessageTests.m; sourceTree = "<group>"; };
+		F561722C1AB5EAE300DB65E7 /* SerialPortSample.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = SerialPortSample.c; sourceTree = "<group>"; };
+		F561722D1AB5EAE300DB65E7 /* SerialPortSample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SerialPortSample.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +89,8 @@
 				F56171FA1AB5B1D300DB65E7 /* Images.xcassets */,
 				F56171FC1AB5B1D300DB65E7 /* Main.storyboard */,
 				F56171F01AB5B1D300DB65E7 /* Supporting Files */,
+				F561722C1AB5EAE300DB65E7 /* SerialPortSample.c */,
+				F561722D1AB5EAE300DB65E7 /* SerialPortSample.h */,
 			);
 			path = VkMessage;
 			sourceTree = "<group>";
@@ -217,6 +222,7 @@
 			files = (
 				F56171F91AB5B1D300DB65E7 /* ViewController.m in Sources */,
 				F56171F61AB5B1D300DB65E7 /* main.m in Sources */,
+				F561722E1AB5EAE300DB65E7 /* SerialPortSample.c in Sources */,
 				F56171F41AB5B1D300DB65E7 /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -404,6 +410,7 @@
 				F561720F1AB5B1D300DB65E7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		F56172101AB5B1D300DB65E7 /* Build configuration list for PBXNativeTarget "VkMessageTests" */ = {
 			isa = XCConfigurationList;
@@ -412,6 +419,7 @@
 				F56172121AB5B1D300DB65E7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
