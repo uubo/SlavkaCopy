@@ -105,7 +105,7 @@
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
     NSLog(@"Connection finished loading");
-    usleep(500000);
+    usleep(1000000);
     [self getMessages];
 }
 
