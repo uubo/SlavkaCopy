@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		E516B4081AB596E300A3F0FE /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E516B4071AB596E300A3F0FE /* main.m */; };
+		E516B4101AB59A5800A3F0FE /* Vk.m in Sources */ = {isa = PBXBuildFile; fileRef = E516B40F1AB59A5800A3F0FE /* Vk.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,8 @@
 /* Begin PBXFileReference section */
 		E516B4041AB596E300A3F0FE /* vk_reader */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = vk_reader; sourceTree = BUILT_PRODUCTS_DIR; };
 		E516B4071AB596E300A3F0FE /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		E516B40E1AB59A5800A3F0FE /* Vk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vk.h; sourceTree = "<group>"; };
+		E516B40F1AB59A5800A3F0FE /* Vk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vk.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +61,8 @@
 			isa = PBXGroup;
 			children = (
 				E516B4071AB596E300A3F0FE /* main.m */,
+				E516B40E1AB59A5800A3F0FE /* Vk.h */,
+				E516B40F1AB59A5800A3F0FE /* Vk.m */,
 			);
 			path = vk_reader;
 			sourceTree = "<group>";
@@ -118,6 +123,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E516B4101AB59A5800A3F0FE /* Vk.m in Sources */,
 				E516B4081AB596E300A3F0FE /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
