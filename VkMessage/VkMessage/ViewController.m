@@ -41,8 +41,15 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
-    NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"%@", responseString);
+    NSError *err = nil;
+    
+    NSXMLDocument *doc = [[NSXMLDocument alloc] initWithData:data options:(NSXMLNodePreserveWhitespace|NSXMLNodePreserveCDATA) error: &err];
+    
+    NSArray *nodes = [doc nodesForXPath:@"/response/message/body" error:&err];
+    
+    for (NSXMLElement *element in nodes) {
+        NSLog(@"%@", element);
+    }
 }
 
 
