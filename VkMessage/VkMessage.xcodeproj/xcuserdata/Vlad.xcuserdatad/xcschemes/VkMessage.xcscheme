@@ -14,10 +14,24 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "E516B4031AB596E300A3F0FE"
-               BuildableName = "vk_reader"
-               BlueprintName = "vk_reader"
-               ReferencedContainer = "container:vk_reader.xcodeproj">
+               BlueprintIdentifier = "F56171EC1AB5B1D300DB65E7"
+               BuildableName = "VkMessage.app"
+               BlueprintName = "VkMessage"
+               ReferencedContainer = "container:VkMessage.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "F56172021AB5B1D300DB65E7"
+               BuildableName = "VkMessageTests.xctest"
+               BlueprintName = "VkMessageTests"
+               ReferencedContainer = "container:VkMessage.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -28,14 +42,24 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Debug">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "F56172021AB5B1D300DB65E7"
+               BuildableName = "VkMessageTests.xctest"
+               BlueprintName = "VkMessageTests"
+               ReferencedContainer = "container:VkMessage.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "E516B4031AB596E300A3F0FE"
-            BuildableName = "vk_reader"
-            BlueprintName = "vk_reader"
-            ReferencedContainer = "container:vk_reader.xcodeproj">
+            BlueprintIdentifier = "F56171EC1AB5B1D300DB65E7"
+            BuildableName = "VkMessage.app"
+            BlueprintName = "VkMessage"
+            ReferencedContainer = "container:VkMessage.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -52,10 +76,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "E516B4031AB596E300A3F0FE"
-            BuildableName = "vk_reader"
-            BlueprintName = "vk_reader"
-            ReferencedContainer = "container:vk_reader.xcodeproj">
+            BlueprintIdentifier = "F56171EC1AB5B1D300DB65E7"
+            BuildableName = "VkMessage.app"
+            BlueprintName = "VkMessage"
+            ReferencedContainer = "container:VkMessage.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -71,10 +95,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "E516B4031AB596E300A3F0FE"
-            BuildableName = "vk_reader"
-            BlueprintName = "vk_reader"
-            ReferencedContainer = "container:vk_reader.xcodeproj">
+            BlueprintIdentifier = "F56171EC1AB5B1D300DB65E7"
+            BuildableName = "VkMessage.app"
+            BlueprintName = "VkMessage"
+            ReferencedContainer = "container:VkMessage.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

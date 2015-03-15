@@ -4,7 +4,7 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>vk_reader.xcscheme</key>
+		<key>VkMessage.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
@@ -12,7 +12,12 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>E516B4031AB596E300A3F0FE</key>
+		<key>F56171EC1AB5B1D300DB65E7</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>F56172021AB5B1D300DB65E7</key>
 		<dict>
 			<key>primary</key>
 			<true/>
