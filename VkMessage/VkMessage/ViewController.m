@@ -10,6 +10,9 @@
 
 @interface ViewController() <NSURLConnectionDelegate>
 
+@property (nonatomic, strong) NSString *accessToken;
+@property (nonatomic, strong) NSString *vkApiRequestString;
+
 @end
 
 @implementation ViewController
@@ -17,7 +20,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    NSURL *url = [NSURL URLWithString:@"http://ya.ru"];
+    NSString *urlString = [NSString stringWithFormat:@"%@%@?out=0&count=10&access_token=%@",
+                           self.vkApiRequestString, @"messages.get.xml", self.accessToken];
+    NSURL *url = [NSURL URLWithString:urlString];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     NSURLConnection *connection = [NSURLConnection connectionWithRequest:request delegate:self];
     [connection start];
@@ -31,7 +36,34 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
-    NSLog(@"hui");
+    NSLog(@"Response received");
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+{
+    NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"%@", responseString);
+}
+
+
+- (NSString *)accessToken
+{
+    if (_accessToken) {
+        return _accessToken;
+    } else {
+        _accessToken = @"b574f1a4d8606febb7ff3fa8653b58c8ee2ab63dd275ca2cf8cb7eefb6b1d712cd03ad31c34f83929ef27";
+        return _accessToken;
+    }
+}
+
+- (NSString *)vkApiRequestString
+{
+    if (_vkApiRequestString) {
+        return _vkApiRequestString;
+    } else {
+        _vkApiRequestString = @"https://api.vk.com/method/";
+        return _vkApiRequestString;
+    }
 }
 
 @end
