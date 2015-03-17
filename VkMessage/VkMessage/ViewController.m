@@ -10,6 +10,8 @@
 #include "SerialPortSample.h"
 #include <string.h>
 
+#define SLEEP_US_TIME 2000000
+
 @interface ViewController() <NSURLConnectionDataDelegate>
 
 @property (nonatomic, strong) NSString *accessToken;
@@ -17,20 +19,51 @@
 @property (nonatomic) NSInteger lastReadMessageID;
 @property (nonatomic) NSInteger state;
 @property (nonatomic) int fileDescriptor;
+@property (weak) IBOutlet NSButton *startButton;
+@property (weak) IBOutlet NSButton *questionButton;
+@property (nonatomic) BOOL buttonPressed;
+@property (nonatomic, strong) NSArray *portsArray;
+@property (weak) IBOutlet NSTextField *textLabel;
+
 
 @end
 
 @implementation ViewController
 
+- (IBAction)pressButton:(NSButton *)sender {
+    
+    if ([self.startButton.title isEqualToString:@"Start"]) {
+        
+        for (NSString* port in self.portsArray) {
+            
+            const char* portInC = [port cStringUsingEncoding:NSUTF8StringEncoding];
+            self.fileDescriptor = openSerialPort(portInC);
+            if (self.fileDescriptor != -1) {
+                NSLog(@"Port with Arduino is found");
+                self.textLabel.stringValue = @"working...";
+                self.startButton.title = @"Stop";
+                [self getMessages];
+                break;
+            }
+            NSLog(@"Port with Arduino is not found!");
+            self.textLabel.stringValue = @"no Arduino connection";
+            
+        }
+        
+        
+        
+    } else {
+        
+        self.startButton.title = @"Start";
+    }
+    
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.portsArray =  [NSArray arrayWithObjects:@"/dev/cu.usbmodem1411", @"/dev/cu.usbmodem1431", @"/dev/tty.usbmodem1411", @"/dev/tty.usbmodem1431", nil];
     
-    self.fileDescriptor = openSerialPort("/dev/cu.usbmodem1431");
-
     self.lastReadMessageID = 0;
-    
-    [self getMessages];
-    
 }
 
 - (void)setRepresentedObject:(id)representedObject {
@@ -70,8 +103,15 @@
         for (NSXMLNode *messageNode in messageNodes) {
             NSArray *messageNodeChildren = [messageNode children];
             for (NSXMLNode *child in messageNodeChildren) {
-                NSLog(@"");
                 NSString *childName = [child name];
+                if ([childName isEqualToString:@"body"]){
+                    if ([[child stringValue] isEqualToString:@"жги"] || [[child stringValue] isEqualToString:@"Жги"] ) {
+                        [self sendCommandToArduino: 1];
+                    } else {
+                        [self sendCommandToArduino: 0];
+                    }
+                }
+                /*
                 if ([childName isEqualToString:@"mid"]) {
                     NSLog(@"%@ - %@", @"mid", [child stringValue]);
                 } else if ([childName isEqualToString:@"uid"]) {
@@ -84,6 +124,7 @@
                 } else if ([childName isEqualToString:@"body"]) {
                     NSLog(@"%@ - %@", @"body", [child stringValue]);
                 }
+                */
             }
         }
     }
@@ -104,9 +145,15 @@
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-    NSLog(@"Connection finished loading");
-    usleep(1000000);
-    [self getMessages];
+    if (![self.startButton.title isEqualToString:@"Start"]){
+        NSLog(@"Connection finished loading");
+        usleep(SLEEP_US_TIME);
+        [self getMessages];
+    }
+    else if ([self.startButton.title isEqualToString:@"Start"]){
+        closeSerialPort(self.fileDescriptor);
+        self.textLabel.stringValue = @"";
+    }
 }
 
 - (NSString *)accessToken
