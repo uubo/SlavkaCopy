@@ -10,7 +10,7 @@
 #include "SerialPortSample.h"
 #include <string.h>
 
-#define SLEEP_US_TIME 2000000
+#define SLEEP_US_TIME 1000000
 
 @interface ViewController() <NSURLConnectionDataDelegate>
 
@@ -24,6 +24,8 @@
 @property (nonatomic) BOOL buttonPressed;
 @property (nonatomic, strong) NSArray *portsArray;
 @property (weak) IBOutlet NSTextField *textLabel;
+@property (nonatomic, strong) NSDictionary *dictionary;
+@property (nonatomic) NSInteger counter;
 
 
 @end
@@ -50,8 +52,6 @@
             
         }
         
-        
-        
     } else {
         
         self.startButton.title = @"Start";
@@ -64,6 +64,10 @@
     self.portsArray =  [NSArray arrayWithObjects:@"/dev/cu.usbmodem1411", @"/dev/cu.usbmodem1431", @"/dev/tty.usbmodem1411", @"/dev/tty.usbmodem1431", nil];
     
     self.lastReadMessageID = 0;
+    self.counter = 0;
+   // [self sendMessage:@"сука" to:12512860];
+    
+    
 }
 
 - (void)setRepresentedObject:(id)representedObject {
@@ -72,6 +76,16 @@
     // Update the view, if already loaded.
 }
 
+- (void)sendMessage:(NSString *)message to:(NSInteger)uid
+{
+    NSString *urlString = [NSString stringWithFormat:@"%@%@?uid=%li&message=%@&&access_token=%@",
+                           self.vkApiRequestString, @"messages.send", (long)uid, [self urlEncode:message], self.accessToken];
+    NSURL *url = [NSURL URLWithString:urlString];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    NSURLConnection *connection = [NSURLConnection connectionWithRequest:request delegate:self];
+    
+    [connection start];
+}
 
 - (void)getMessages
 {
@@ -79,55 +93,71 @@
                                    self.vkApiRequestString, @"messages.get.xml",
                                    (long)self.lastReadMessageID,
                                    self.accessToken];
-            NSURL *url = [NSURL URLWithString:urlString];
-            NSURLRequest *request = [NSURLRequest requestWithURL:url];
-            NSURLConnection *connection = [NSURLConnection connectionWithRequest:request delegate:self];
+    NSURL *url = [NSURL URLWithString:urlString];
+    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+    NSURLConnection *connection = [NSURLConnection connectionWithRequest:request delegate:self];
             
-            [connection start];
+    [connection start];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
 {
-    NSLog(@"Response received");
+   // NSLog(@"%@", connection);
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
     NSError *err = nil;
+   // NSLog(@"%@", data);
     NSXMLDocument *doc = [[NSXMLDocument alloc] initWithData:data options:(NSXMLNodePreserveWhitespace|NSXMLNodePreserveCDATA) error: &err];
-    
+    [self parseMyXML:doc];
+}
+
+-(void)parseMyXML:(NSXMLDocument *)doc
+{
+
+    NSError *err = nil;
     NSArray *messageNodes = [doc nodesForXPath:@"/response/message" error:&err];
-    if (messageNodes.count) {
-        self.lastReadMessageID = [[[messageNodes[0] childAtIndex:0] stringValue] integerValue];
+    if (messageNodes == nil){
+       // NSLog(@"VK Message has been sent");
+    }
+    else {
+        if (messageNodes.count) {
+            self.lastReadMessageID = [[[messageNodes[0] childAtIndex:0] stringValue] integerValue];
+            
+            if (self.counter > 0) {
+            
+                for (NSXMLNode *messageNode in messageNodes) {
+                    NSArray *messageAttributes = [messageNode children];
+                    NSInteger uid = 0;
+                    NSString *messagetext;
+                    for (NSXMLNode *attribute in messageAttributes) {
+                        
+                        if ([[attribute name] isEqualToString:@"uid"]){
+                            uid = [[attribute stringValue] integerValue];
+                        } else if ([[attribute name] isEqualToString:@"body"]){
+                            messagetext = [attribute stringValue];
+                        }
+                    }
+                    
+                    NSLog(@"%@ from %li", messagetext, uid);
         
-        for (NSXMLNode *messageNode in messageNodes) {
-            NSArray *messageNodeChildren = [messageNode children];
-            for (NSXMLNode *child in messageNodeChildren) {
-                NSString *childName = [child name];
-                if ([childName isEqualToString:@"body"]){
-                    if ([[child stringValue] isEqualToString:@"жги"] || [[child stringValue] isEqualToString:@"Жги"] ) {
+                    
+                    if ([self.dictionary objectForKey:messagetext]){
                         [self sendCommandToArduino: 1];
+                        [self sendMessage:[self.dictionary objectForKey:messagetext] to:uid];
                     } else {
                         [self sendCommandToArduino: 0];
+                        [self sendMessage:@"Ок, выключаю" to:uid];
                     }
                 }
-                /*
-                if ([childName isEqualToString:@"mid"]) {
-                    NSLog(@"%@ - %@", @"mid", [child stringValue]);
-                } else if ([childName isEqualToString:@"uid"]) {
-                    NSInteger uid = [[child stringValue] integerValue];
-                    if (uid == 38705281) {
-                        [self sendCommandToArduino: 1];
-                    } else if (uid == 12512860) {
-                        [self sendCommandToArduino: 0];
-                    }
-                } else if ([childName isEqualToString:@"body"]) {
-                    NSLog(@"%@ - %@", @"body", [child stringValue]);
-                }
-                */
+            }
+            else {
+                self.counter++;
             }
         }
     }
+    
 }
 
 - (void)sendCommandToArduino:(NSUInteger)cmd
@@ -156,6 +186,16 @@
     }
 }
 
+-(NSDictionary *)dictionary
+{
+    if (_dictionary) {
+        return _dictionary;
+    } else {
+        _dictionary = [NSDictionary dictionaryWithObjects: [NSArray arrayWithObjects:@"Бут сделано, хозяин", @"да, сэр", @"как пожелаете, господин", @"именно это я и сделаю", @"вы несомненно правы, повелитель", nil] forKeys:[NSArray arrayWithObjects:@"Жги", @"Зажигай", @"жги", @"зажигай", @"Поддай огоньку", nil]];
+        return _dictionary;
+    }
+}
+
 - (NSString *)accessToken
 {
     if (_accessToken) {
@@ -174,6 +214,10 @@
         _vkApiRequestString = @"https://api.vk.com/method/";
         return _vkApiRequestString;
     }
+}
+
+- (NSString *)urlEncode:(NSString *)str {
+    return (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL, (CFStringRef)str, NULL, CFSTR("!*'();:@&=+$,/?%#[]"), kCFStringEncodingUTF8));
 }
 
 @end
