@@ -22,11 +22,13 @@
 @property (weak) IBOutlet NSButton *startButton;
 @property (weak) IBOutlet NSButton *questionButton;
 @property (nonatomic) BOOL buttonPressed;
-@property (nonatomic, strong) NSArray *portsArray;
+@property (nonatomic, strong) NSArray *serialPorts;
 @property (weak) IBOutlet NSTextField *textLabel;
-@property (nonatomic, strong) NSDictionary *dictionary;
+@property (nonatomic, strong) NSArray *onAnswers;
+@property (nonatomic, strong) NSArray *offAnswers;
+@property (nonatomic, strong) NSArray *onRequests;
+@property (nonatomic, strong) NSArray *offRequests;
 @property (nonatomic) NSInteger counter;
-
 
 @end
 
@@ -36,7 +38,7 @@
     
     if ([self.startButton.title isEqualToString:@"Start"]) {
         
-        for (NSString* port in self.portsArray) {
+        for (NSString* port in self.serialPorts) {
             
             const char* portInC = [port cStringUsingEncoding:NSUTF8StringEncoding];
             self.fileDescriptor = openSerialPort(portInC);
@@ -61,11 +63,15 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.portsArray =  [NSArray arrayWithObjects:@"/dev/cu.usbmodem1411", @"/dev/cu.usbmodem1431", @"/dev/tty.usbmodem1411", @"/dev/tty.usbmodem1431", nil];
+    self.serialPorts =  [NSArray arrayWithObjects:@"/dev/cu.usbmodem1411", @"/dev/cu.usbmodem1431", @"/dev/tty.usbmodem1411", @"/dev/tty.usbmodem1431", nil];
+    self.offAnswers = [NSArray arrayWithObjects:@"ok", @"ща выключу", @"вас поняла", @"варя все сделает", @"варя выключит", nil];
+    self.onAnswers = [NSArray arrayWithObjects:@"Бут сделано, хозяин", @"да, сэр", @"как пожелаете, господин", @"именно это я и сделаю", @"вы несомненно правы, повелитель", nil];
+    self.onRequests = [NSArray arrayWithObjects:@"Жги", @"Зажигай", @"жги", @"зажигай", @"Поддай огоньку", @"включи", @"вкл", nil];
+    self.offRequests = [NSArray arrayWithObjects:@"Выкл", @"Заебала", @"Ослепни", @"Вырубай", @"Сильно светит", @"Ок", nil];
     
     self.lastReadMessageID = 0;
     self.counter = 0;
-   // [self sendMessage:@"сука" to:12512860];
+   //[self sendMessage:@"сука" to:12512860];
     
     
 }
@@ -82,9 +88,10 @@
                            self.vkApiRequestString, @"messages.send", (long)uid, [self urlEncode:message], self.accessToken];
     NSURL *url = [NSURL URLWithString:urlString];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    NSURLConnection *connection = [NSURLConnection connectionWithRequest:request delegate:self];
+    NSURLConnection *conSend = [NSURLConnection connectionWithRequest:request delegate:nil];
     
-    [connection start];
+    [conSend start];
+    NSLog(@"%@ was sent to %ld", message, uid);
 }
 
 - (void)getMessages
@@ -95,9 +102,8 @@
                                    self.accessToken];
     NSURL *url = [NSURL URLWithString:urlString];
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
-    NSURLConnection *connection = [NSURLConnection connectionWithRequest:request delegate:self];
-            
-    [connection start];
+    NSURLConnection *conGet = [NSURLConnection connectionWithRequest:request delegate:self];
+    [conGet start];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response
@@ -107,10 +113,11 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
 {
+    
     NSError *err = nil;
-   // NSLog(@"%@", data);
     NSXMLDocument *doc = [[NSXMLDocument alloc] initWithData:data options:(NSXMLNodePreserveWhitespace|NSXMLNodePreserveCDATA) error: &err];
     [self parseMyXML:doc];
+    
 }
 
 -(void)parseMyXML:(NSXMLDocument *)doc
@@ -118,51 +125,54 @@
 
     NSError *err = nil;
     NSArray *messageNodes = [doc nodesForXPath:@"/response/message" error:&err];
-    if (messageNodes == nil){
-       // NSLog(@"VK Message has been sent");
-    }
-    else {
-        if (messageNodes.count) {
-            self.lastReadMessageID = [[[messageNodes[0] childAtIndex:0] stringValue] integerValue];
-            
-            if (self.counter > 0) {
-            
-                for (NSXMLNode *messageNode in messageNodes) {
-                    NSArray *messageAttributes = [messageNode children];
-                    NSInteger uid = 0;
-                    NSString *messagetext;
-                    for (NSXMLNode *attribute in messageAttributes) {
-                        
-                        if ([[attribute name] isEqualToString:@"uid"]){
-                            uid = [[attribute stringValue] integerValue];
-                        } else if ([[attribute name] isEqualToString:@"body"]){
-                            messagetext = [attribute stringValue];
-                        }
-                    }
-                    
-                    NSLog(@"%@ from %li", messagetext, uid);
+   
+    if (messageNodes.count) {
+        self.lastReadMessageID = [[[messageNodes[0] childAtIndex:0] stringValue] integerValue];
         
+        if (self.counter > 0) {
+        
+            for (NSXMLNode *messageNode in messageNodes) {
+                NSArray *messageAttributes = [messageNode children];
+                NSInteger uid = 0;
+                NSString *messagetext;
+                for (NSXMLNode *attribute in messageAttributes) {
                     
-                    if ([self.dictionary objectForKey:messagetext]){
-                        [self sendCommandToArduino: 1];
-                        [self sendMessage:[self.dictionary objectForKey:messagetext] to:uid];
-                    } else {
-                        [self sendCommandToArduino: 0];
-                        [self sendMessage:@"Ок, выключаю" to:uid];
+                    if ([[attribute name] isEqualToString:@"uid"]){
+                        uid = [[attribute stringValue] integerValue];
+                    } else if ([[attribute name] isEqualToString:@"body"]){
+                        messagetext = [attribute stringValue];
                     }
                 }
-            }
-            else {
-                self.counter++;
+                
+                NSLog(@"%@ from %li", messagetext, uid);
+    
+                
+                if ([self.onRequests containsObject:messagetext]){
+                    NSUInteger index = arc4random() % [self.onAnswers count];
+                    [self sendCommandToArduino: 1];
+                    [self sendMessage:[self.onAnswers objectAtIndex:index] to:uid];
+                    
+                } else if ([self.offRequests containsObject:messagetext]){
+                    [self sendCommandToArduino: 0];
+                    NSUInteger index = arc4random() % [self.offAnswers count];
+                    [self sendMessage:[self.offAnswers objectAtIndex:index]  to:uid];
+                    
+                } else {
+                    [self sendMessage:[NSString stringWithFormat:@"Что вы имеете в виду под '%@'?", messagetext]  to:uid];
+                }
             }
         }
-    }
+        else {
+            self.counter++;
+        }
     
+    }
+   
 }
 
 - (void)sendCommandToArduino:(NSUInteger)cmd
 {
-    NSLog(@"Ready to send command");
+    //NSLog(@"Ready to send command");
     
     char command[10];
     sprintf(command, "%lu", (unsigned long)cmd);
@@ -176,23 +186,14 @@
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
     if (![self.startButton.title isEqualToString:@"Start"]){
-        NSLog(@"Connection finished loading");
+        //NSLog(@"Connection finished loading");
         usleep(SLEEP_US_TIME);
         [self getMessages];
+        
     }
     else if ([self.startButton.title isEqualToString:@"Start"]){
         closeSerialPort(self.fileDescriptor);
         self.textLabel.stringValue = @"";
-    }
-}
-
--(NSDictionary *)dictionary
-{
-    if (_dictionary) {
-        return _dictionary;
-    } else {
-        _dictionary = [NSDictionary dictionaryWithObjects: [NSArray arrayWithObjects:@"Бут сделано, хозяин", @"да, сэр", @"как пожелаете, господин", @"именно это я и сделаю", @"вы несомненно правы, повелитель", nil] forKeys:[NSArray arrayWithObjects:@"Жги", @"Зажигай", @"жги", @"зажигай", @"Поддай огоньку", nil]];
-        return _dictionary;
     }
 }
 
